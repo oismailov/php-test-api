@@ -62,16 +62,16 @@ class ItemController extends AbstractController
      */
     public function create(Request $request)
     {
-        $data = $request->get('data');
+        $itemDto = new Dto\Item(['data' => $request->get('data')]);
 
-        $dataValidator = new Validator\Item($data);
-        $errors = $this->getValidator()->validate($dataValidator);
+        $itemValidator = new Validator\Item($itemDto->getData());
+        $errors = $this->getValidator()->validate($itemValidator);
 
         if ($errors->count() > 0) {
             return $this->json(['error' => $errors->get(0)->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        $item = $this->userItemService->create($this->getUser(), $data);
+        $item = $this->userItemService->create($this->getUser(), $itemDto->getData());
 
         return $this->json((new Resource\Item($item))->toArray());
     }
@@ -118,7 +118,7 @@ class ItemController extends AbstractController
             return $this->json(['error' => 'No item'], Response::HTTP_BAD_REQUEST);
         }
 
-        $itemDto = new Dto\Item(json_decode($request->getContent(), true));
+        $itemDto = new Dto\Item(['data' => $request->get('data')]);
 
         $dataValidator = new Validator\Item($itemDto->getData());
         $errors = $this->getValidator()->validate($dataValidator);
